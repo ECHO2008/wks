@@ -2,8 +2,9 @@
 ```
 解决原先乱码问题
 启动命令
-  python3.9 main.py -l url -P p1-pn
+  python3.9 main.py -l url -k keyword -P p1-pn
 -l 列表地址
+-k 搜索关键词
 -P 页码，例如：1-10，从第一页到第10页
 ```
 百度文库爬虫  Baidu Wenku Spider
