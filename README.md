@@ -1,5 +1,7 @@
 # wks
-
+```
+解决原先乱码问题
+```
 百度文库爬虫  Baidu Wenku Spider
 
 仅支持python3
