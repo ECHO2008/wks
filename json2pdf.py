@@ -30,7 +30,7 @@ def save_pdf(tempdir, pagenum, font_replace=dict()):
     for ttf in ttfs:
         # pdfmetrics.registerFont(TTFont(ttf2font.get(ttf[:-4]), os.path.join(tempdir, ttf)))
         pdfmetrics.registerFont(TTFont(ttf[:-4], os.path.join(tempdir, ttf)))
-    pdfmetrics.registerFont(TTFont("SimSun", "/Users/echo/Downloads/SimSun.ttf"))
+
     pdfmetrics.registerFont(TTFont("sonti", "./font/Arial Unicode.ttf"))
     # print("ss", pdfmetrics.getFont("SimSun"))
     # exit(0)
