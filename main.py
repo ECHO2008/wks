@@ -455,7 +455,7 @@ if args.listUrl:
                     notExistKeyword = False
                     break
 
-            if tmpUrl['data']['pageNum'] > 2 and notExistKeyword:
+            if 1 < tmpUrl['data']['pageNum'] < 91 and notExistKeyword:
                 urls.append(tmpUrl['data']['url'].replace(".html", ""))
         print("urls:", urls)
         fatch_urls(urls)
