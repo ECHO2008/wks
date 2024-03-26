@@ -25,7 +25,15 @@ blackWords = ["股旁", "选股", "炒股", "股票", "赌博", "彩票", "福�
               "罗小黑", "基督", "耶稣", "福音", "圣经", "天父", "灵歌", "书籍", "电子书", "巨著", "电子教材", "出版社", "电子课本", "丛书", "小说", "连载",
               "剧本", "GB", "党", "中央", "新疆", "西藏", "台湾", "共和国", "历任", "将领", "将军", "红军", "解放军", "八路军", "军工", "军功", "军人",
               "军长", "军队", "贪官", "高官", "市委书记", "国家领导", "政治局", "常委", "元帅", "总理", "国家部", "国防部长", "右派", "名单", "名录", "红色革命",
-              "简历", "国税发", "号文", "红头文件", "发改", "印发", "人社发", "世联", "边检", "边防", "保密"]
+              "简历", "国税发", "号文", "红头文件", "发改", "印发", "人社发", "世联", "边检", "边防", "保密",
+
+              "笔芯范文网", "阿扣范文网", "职场范文网", "好范文网", "考试院网", "香当网", "文档之家", "蚂蚁文库", "文档视界", "语文网", "工图网", "满分作文网", "学科网",
+              "zxxk", "组卷网", "教育网", "查字典", "快文库", "青夏教育精英家教网", "快思网", "冰点", "幼儿园学习网", "21世纪", "万象文库", "写写帮", "相关文章专题",
+              "二一教育", "21教育", "汇文网", "huiwenwangcn", "答案圈", "绿色圃中小学", "作文吧", "装配图网", "绿色作文网", "造句网", "出国留学网", "原上草网",
+              "大文斗", "所有年代上下册", "中学历史教学园地", "第一文库", "百度", "baidu", "豆丁", "docin", "道客", "doc88", "原创力", "max",
+              "book118", "文档赚钱", "投稿赚钱", "爱问文库", "大分享文库", "人人网", "知网", "金锄头", "文秘网", "天天文库", "投稿网", "第一课件", "第一模板网",
+              "七彩学科网", "原上草网", "教育盘", "中学语文教学资源网", "360文档中心", "中国人才网", "作文网", "范文网", "xuexila", "学习啦", "ruiwen", "瑞文网",
+              "118"]
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -415,18 +423,20 @@ if args.listUrl:
     if len(pageList) == 1:
         pages = [int(args.page[0])]
     else:
-        pages = list(range(int(pageList[0]), int(pageList[1])+1))
+        pages = list(range(int(pageList[0]), int(pageList[1]) + 1))
 
     for page in pages:
         print("current_page =", page)
         current_timestamp_ms = int(time.time() * 1000)
         postData = {"requests": [{"sceneID": "PCSearch",
                                   "params": {"word": keyword, "searchType": 0, "lm": "1", "od": "0", "fr": "search",
-                                             "ie": "utf-8", "_wkts_": current_timestamp_ms, "wkQuery": keyword, "fd": "1",
+                                             "ie": "utf-8", "_wkts_": current_timestamp_ms, "wkQuery": keyword,
+                                             "fd": "1",
                                              "pn": page,
                                              "curLogId": "2361636391"}}, {"sceneID": "PCSearchRec",
                                                                           "params": {"word": keyword, "searchType": 0,
-                                                                                     "lm": "1", "od": "0", "fr": "search",
+                                                                                     "lm": "1", "od": "0",
+                                                                                     "fr": "search",
                                                                                      "ie": "utf-8",
                                                                                      "_wkts_": current_timestamp_ms,
                                                                                      "wkQuery": keyword, "fd": "1",
@@ -449,13 +459,17 @@ if args.listUrl:
         # print(itemList)
 
         for tmpUrl in itemList['result']['items']:
+            if tmpUrl['data']['fileType'] in [3, 6]:
+                # 1:doc ,2:xls ,3:PPT ,4: doc , 5:xls  6: ppt, 7: PDF, 8: txt
+                continue
+
             notExistKeyword = True
             for keyword in blackWords:
-                if keyword in tmpUrl['data']['title'] and keyword in tmpUrl['data']['content']:
+                if keyword in tmpUrl['data']['title'] or keyword in tmpUrl['data']['content']:
                     notExistKeyword = False
                     break
 
-            if 1 < tmpUrl['data']['pageNum'] < 91 and notExistKeyword:
+            if tmpUrl['data']['pageNum'] < 91 and notExistKeyword:
                 urls.append(tmpUrl['data']['url'].replace(".html", ""))
         print("urls:", urls)
         fatch_urls(urls)
