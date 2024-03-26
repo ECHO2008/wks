@@ -447,6 +447,7 @@ if args.listUrl:
         res = requests.post(listUrl,
                             json=postData,
                             headers=headers)
+        print("res:", res)
         resData = json.loads(res.text)
         if resData['status']['code'] != 0:
             print(resData['status']['msg'])
