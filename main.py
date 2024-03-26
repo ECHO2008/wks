@@ -464,6 +464,7 @@ if args.listUrl:
 
         for tmpUrl in itemList['result']['items']:
             if tmpUrl['data']['fileType'] in [3, 6]:
+                print("文件类型不能是 ppt")
                 # 1:doc ,2:xls ,3:PPT ,4: doc , 5:xls  6: ppt, 7: PDF, 8: txt
                 continue
 
@@ -474,6 +475,7 @@ if args.listUrl:
                     break
 
             if tmpUrl['data']['pageNum'] < 91 and notExistKeyword:
+                print("url:", tmpUrl['data']['url'])
                 urls.append(tmpUrl['data']['url'].replace(".html", ""))
         print("urls:", urls)
         if len(urls) > 0:
