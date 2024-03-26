@@ -470,9 +470,9 @@ if args.listUrl:
                 continue
 
             notExistKeyword = True
-            for keyword in blackWords:
-                if keyword in tmpUrl['data']['title'] or keyword in tmpUrl['data']['content']:
-                    print("包含关键字：", keyword, tmpUrl['data']['title'])
+            for bk in blackWords:
+                if bk in tmpUrl['data']['title'] or bk in tmpUrl['data']['content']:
+                    print("包含关键字：", bk, tmpUrl['data']['title'])
                     notExistKeyword = False
                     break
 
