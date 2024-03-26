@@ -474,7 +474,8 @@ if args.listUrl:
             if tmpUrl['data']['pageNum'] < 91 and notExistKeyword:
                 urls.append(tmpUrl['data']['url'].replace(".html", ""))
         print("urls:", urls)
-        fatch_urls(urls)
+        if len(urls) > 0:
+            fatch_urls(urls)
 
     # urls = ["https://wenku.baidu.com/view/4c4eb0e1a7c30c22590102020740be1e640ecc62?fr=income7-doc-search"]
 
