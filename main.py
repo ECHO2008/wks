@@ -427,7 +427,6 @@ if args.listUrl:
 
     for page in pages:
         print("current_page =", page)
-        urls = []
         current_timestamp_ms = int(time.time() * 1000)
         postData = {"requests": [{"sceneID": "PCSearch",
                                   "params": {"word": keyword, "searchType": 0, "lm": "0", "od": "0", "fr": "search",
@@ -476,6 +475,8 @@ if args.listUrl:
         print("urls:", urls)
         if len(urls) > 0:
             fatch_urls(urls)
+
+        urls.clear()
 
     # urls = ["https://wenku.baidu.com/view/4c4eb0e1a7c30c22590102020740be1e640ecc62?fr=income7-doc-search"]
 
