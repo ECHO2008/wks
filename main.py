@@ -427,6 +427,7 @@ if args.listUrl:
 
     for page in pages:
         print("current_page =", page)
+        urls = []
         current_timestamp_ms = int(time.time() * 1000)
         postData = {"requests": [{"sceneID": "PCSearch",
                                   "params": {"word": keyword, "searchType": 0, "lm": "0", "od": "0", "fr": "search",
