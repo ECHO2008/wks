@@ -425,6 +425,8 @@ if args.listUrl:
     else:
         pages = list(range(int(pageList[0]), int(pageList[1]) + 1))
 
+    print("pages:", pages)
+
     for page in pages:
         print("current_page =", page)
         current_timestamp_ms = int(time.time() * 1000)
