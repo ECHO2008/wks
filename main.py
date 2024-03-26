@@ -429,18 +429,19 @@ if args.listUrl:
         print("current_page =", page)
         current_timestamp_ms = int(time.time() * 1000)
         postData = {"requests": [{"sceneID": "PCSearch",
-                                  "params": {"word": keyword, "searchType": 0, "lm": "1", "od": "0", "fr": "search",
+                                  "params": {"word": keyword, "searchType": 0, "lm": "0", "od": "0", "fr": "search",
                                              "ie": "utf-8", "_wkts_": current_timestamp_ms, "wkQuery": keyword,
                                              "fd": "1",
                                              "pn": page,
-                                             "curLogId": "2361636391"}}, {"sceneID": "PCSearchRec",
-                                                                          "params": {"word": keyword, "searchType": 0,
-                                                                                     "lm": "1", "od": "0",
-                                                                                     "fr": "search",
-                                                                                     "ie": "utf-8",
-                                                                                     "_wkts_": current_timestamp_ms,
-                                                                                     "wkQuery": keyword, "fd": "1",
-                                                                                     "pn": page}},
+                                             "curLogId": "2361636391"}},
+                                 {"sceneID": "PCSearchRec",
+                                  "params": {"word": keyword, "searchType": 0,
+                                             "lm": "1", "od": "0",
+                                             "fr": "search",
+                                             "ie": "utf-8",
+                                             "_wkts_": current_timestamp_ms,
+                                             "wkQuery": keyword, "fd": "1",
+                                             "pn": page}},
                                  {"sceneID": "PCSearchVipcard"}]}
 
         res = requests.post(listUrl,
