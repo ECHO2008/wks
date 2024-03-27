@@ -182,7 +182,6 @@ def fatch_urls(urls):
                 output = tmpDir + title
         except:
             print('Error! It is not a Baidu Wenku document.')
-            shutil.rmtree(temp_dir)
             continue
 
 
