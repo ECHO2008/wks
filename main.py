@@ -440,9 +440,9 @@ tmpDir = ''
 if args.listUrl:
     listUrl = args.listUrl
     keyword = args.keyword
-    if not os.path.exists(keyword):
-        os.mkdir(keyword)
     tmpDir = pathDir + "{}/".format(keyword)
+    if not os.path.exists(tmpDir):
+        os.mkdir(tmpDir)
     pageList = args.page.split("-")
     if len(pageList) == 1:
         pages = [int(args.page[0])]
