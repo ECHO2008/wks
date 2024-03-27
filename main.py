@@ -431,7 +431,7 @@ if args.listUrl:
     keyword = args.keyword
     if not os.path.exists(keyword):
         os.mkdir(keyword)
-    tmpDir = "root/docs/{}/".format(keyword)
+    tmpDir = "./{}/".format(keyword)
     pageList = args.page.split("-")
     if len(pageList) == 1:
         pages = [int(args.page[0])]
