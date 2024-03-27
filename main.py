@@ -89,7 +89,16 @@ parser.add_argument(
     help='当前页'
 )
 
+parser.add_argument(
+    '-D', '--dir',
+    help='导出的目录存放路径'
+)
+
 args = parser.parse_args()
+
+pathDir = "./"
+if args.dir:
+    pathDir = args.dir.rstrip("/")+"/"
 
 cookies = ''
 if args.cookies:
@@ -434,7 +443,7 @@ if args.listUrl:
     keyword = args.keyword
     if not os.path.exists(keyword):
         os.mkdir(keyword)
-    tmpDir = "./{}/".format(keyword)
+    tmpDir = pathDir + "{}/".format(keyword)
     pageList = args.page.split("-")
     if len(pageList) == 1:
         pages = [int(args.page[0])]
