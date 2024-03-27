@@ -355,7 +355,6 @@ def fatch_urls(urls):
                     font_replace = save_pdf(temp_dir, pagenums[i], font_replace=font_replace)
                     # print("font_replace 2:", font_replace)
                 except:
-                    shutil.rmtree(temp_dir)
                     break
                 percentage = (i + 1) / len(pagenums) * 100
                 print('\r|{}| {} / {} ({:.2f}%)'.format(
