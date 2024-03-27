@@ -303,6 +303,7 @@ def fatch_urls(urls):
                     continue
                 try:
                     req = requests.get(jsons[pagenums[i]], headers=headers)
+                    time.sleep(0.02)
                 except:
                     print("获取json 数据异常")
                     continue
@@ -325,6 +326,7 @@ def fatch_urls(urls):
                 if not pngs.get(pagenums[i]):
                     continue
                 req = requests.get(pngs[pagenums[i]], headers=headers)
+                time.sleep(0.02)
                 # status not 200?
                 with open(os.path.join(temp_dir, str(pagenums[i]) + '.png'), 'wb') as f:
                     f.write(req.content)
