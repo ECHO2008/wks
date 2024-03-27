@@ -374,7 +374,7 @@ def fatch_urls(urls):
                     print("字体不全，跳过")
                     break
             if os.path.exists(output + '.pdf'):
-                output = output+"_"+time.time()
+                output = output+"_" + str(int(time.time()*1000))
             file_merger.write(output + '.pdf')
 
             print('Success.')
