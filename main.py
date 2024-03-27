@@ -264,7 +264,6 @@ def fatch_urls(urls):
 
             if data['readerInfo']['page'] > len(jsons):
                 print("页面未全部获取")
-                shutil.rmtree(temp_dir)
                 continue
                 print(
                     "It seems that you provided incorrect or Non-VIP cookies, only be able to download a part of the file ({} page), not the whole file ({} page).".format(
@@ -303,14 +302,12 @@ def fatch_urls(urls):
             for i in range(len(pagenums)):
                 # TODO: theading
                 if not jsons.get(pagenums[i]):
-                    shutil.rmtree(temp_dir)
                     break
                 try:
                     req = requests.get(jsons[pagenums[i]], headers=headers)
                     time.sleep(0.2)
                 except:
                     print("获取json 数据异常")
-                    shutil.rmtree(temp_dir)
                     break
                 # status not 200?
                 with open(os.path.join(temp_dir, str(pagenums[i]) + '.json'), 'w') as f:
@@ -329,7 +326,6 @@ def fatch_urls(urls):
             for i in range(len(pagenums)):
                 # TODO: theading
                 if not pngs.get(pagenums[i]):
-                    shutil.rmtree(temp_dir)
                     break
                 req = requests.get(pngs[pagenums[i]], headers=headers)
                 time.sleep(0.2)
