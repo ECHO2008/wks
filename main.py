@@ -153,6 +153,7 @@ def fatch_urls(urls):
             elif data['title'][-7:] == ' - 百度文库':
                 title = data['title'][:-7]
 
+            title = title.strip()
             # filetype = re.search(r'<div class="file-type-icon (.*)"></div>').group(1)
             filetype = data['viewBiz']['docInfo']['fileType']
 
