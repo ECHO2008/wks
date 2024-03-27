@@ -164,6 +164,9 @@ def fatch_urls(urls):
                 docid = data['readerInfo']['docId']
                 aggid = temp_dir
 
+            if data['viewBiz']['docInfo']['fileType']:
+                title = title + "_" + data['viewBiz']['docInfo']['fileType']
+
             if args.output:
                 output = args.output
             else:
@@ -173,8 +176,7 @@ def fatch_urls(urls):
             shutil.rmtree(temp_dir)
             continue
 
-        if data['viewBiz']['docInfo']['fileType']:
-            title = title + "_" + data['viewBiz']['docInfo']['fileType']
+
 
         print('Success. ')
         print('title: ', title)
