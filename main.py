@@ -173,6 +173,9 @@ def fatch_urls(urls):
             shutil.rmtree(temp_dir)
             continue
 
+        if data['viewBiz']['docInfo']['fileType']:
+            title = title + "_" + data['viewBiz']['docInfo']['fileType']
+
         print('Success. ')
         print('title: ', title)
 
