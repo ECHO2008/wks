@@ -169,6 +169,7 @@ def fatch_urls(urls):
                 output = tmpDir + title
         except:
             print('Error! It is not a Baidu Wenku document.')
+            shutil.rmtree(temp_dir)
             continue
 
         print('Success. ')
@@ -248,6 +249,7 @@ def fatch_urls(urls):
                     except:
                         print("网络请求异常，休息10s")
                         time.sleep(10)
+                        shutil.rmtree(temp_dir)
                         continue
                     print("url:", url)
                     data_temp = json.loads(req.text)['data'].get('htmlUrls')
@@ -262,6 +264,7 @@ def fatch_urls(urls):
 
             if data['readerInfo']['page'] > len(jsons):
                 print("页面未全部获取")
+                shutil.rmtree(temp_dir)
                 continue
                 print(
                     "It seems that you provided incorrect or Non-VIP cookies, only be able to download a part of the file ({} page), not the whole file ({} page).".format(
@@ -300,13 +303,15 @@ def fatch_urls(urls):
             for i in range(len(pagenums)):
                 # TODO: theading
                 if not jsons.get(pagenums[i]):
-                    continue
+                    shutil.rmtree(temp_dir)
+                    break
                 try:
                     req = requests.get(jsons[pagenums[i]], headers=headers)
                     time.sleep(0.2)
                 except:
                     print("获取json 数据异常")
-                    continue
+                    shutil.rmtree(temp_dir)
+                    break
                 # status not 200?
                 with open(os.path.join(temp_dir, str(pagenums[i]) + '.json'), 'w') as f:
                     temp = re.search(r'wenku_[0-9]+\((.*)\)', req.text).group(1)
@@ -324,7 +329,8 @@ def fatch_urls(urls):
             for i in range(len(pagenums)):
                 # TODO: theading
                 if not pngs.get(pagenums[i]):
-                    continue
+                    shutil.rmtree(temp_dir)
+                    break
                 req = requests.get(pngs[pagenums[i]], headers=headers)
                 time.sleep(0.2)
                 # status not 200?
@@ -349,7 +355,8 @@ def fatch_urls(urls):
                     font_replace = save_pdf(temp_dir, pagenums[i], font_replace=font_replace)
                     # print("font_replace 2:", font_replace)
                 except:
-                    continue
+                    shutil.rmtree(temp_dir)
+                    break
                 percentage = (i + 1) / len(pagenums) * 100
                 print('\r|{}| {} / {} ({:.2f}%)'.format(
                     '=' * int(percentage // 2 - 1) + '>' + '-' * int(50 - percentage // 2),
