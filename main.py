@@ -164,7 +164,7 @@ def fatch_urls(urls):
                 docid = data['readerInfo']['docId']
                 aggid = temp_dir
 
-            if data['viewBiz']['docInfo']['fileType']:
+            if data['viewBiz']['docInfo']['fileType'] and data['viewBiz']['docInfo']['fileType'] != 'pdf':
                 title = title + "_" + data['viewBiz']['docInfo']['fileType']
 
             if args.output:
