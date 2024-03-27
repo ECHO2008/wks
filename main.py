@@ -393,7 +393,11 @@ def fatch_urls(urls):
                     'rsign'] + '&callback=cb&_=' + str(int(time.time())),
                 headers=headers
             )
-            lines_others_json = json.loads(req.text[3: -1])
+            try:
+                lines_others_json = json.loads(req.text[3: -1])
+            except:
+                print("解释json异常，json数据事：", req.text[3: -1])
+                continue
             lines_others = [x['parags'][0]['c'][:-2] for x in lines_others_json]
             lines = [line for line in lines if line]
             lines[-1] = lines[-1][:-1]
