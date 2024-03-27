@@ -485,6 +485,8 @@ if args.listUrl:
             fatch_urls(urls)
 
         urls.clear()
+        if current_timestamp_ms - int(time.time() * 1000) < 60000:
+            time.sleep(random.randint(8, 16))
 
     # urls = ["https://wenku.baidu.com/view/4c4eb0e1a7c30c22590102020740be1e640ecc62?fr=income7-doc-search"]
 
