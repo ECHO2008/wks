@@ -396,7 +396,7 @@ def fatch_urls(urls):
             try:
                 lines_others_json = json.loads(req.text[3: -1])
             except:
-                print("解释json异常，json数据事：", req.text[3: -1])
+                print("解释json异常，json数据事：")
                 continue
             lines_others = [x['parags'][0]['c'][:-2] for x in lines_others_json]
             lines = [line for line in lines if line]
