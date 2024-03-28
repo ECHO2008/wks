@@ -8,7 +8,7 @@
 -P 页码，例如：1-10，从第一页到第10页
 
 增加了pdf2word， 需要安装依赖
-pip39 install pdfplumber xlrd xlwt pandas
+pip39 install pdfplumber xlrd xlwt pandas pdf2docx
 ```
 百度文库爬虫  Baidu Wenku Spider
 

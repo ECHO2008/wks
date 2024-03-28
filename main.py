@@ -474,7 +474,7 @@ def fatch_urls(urls):
                     f.write(line.replace('\r\n', '\r'))
             print('Saved to ' + output + '.txt')
 
-            if not args.temp:
+            if not args.temp and os.path.exists(temp_dir):
                 shutil.rmtree(temp_dir)
 
         else:
