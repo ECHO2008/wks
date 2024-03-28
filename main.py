@@ -98,7 +98,7 @@ args = parser.parse_args()
 
 pathDir = "./"
 if args.dir:
-    pathDir = args.dir.rstrip("/")+"/"
+    pathDir = args.dir.rstrip("/") + "/"
 
 cookies = ''
 if args.cookies:
@@ -116,6 +116,8 @@ headers = {
     'Cookie': cookies,
     'Referer': 'https://wenku.baidu.com/'
 }
+
+isWord = False
 
 
 def fatch_urls(urls):
@@ -175,6 +177,10 @@ def fatch_urls(urls):
 
             if data['viewBiz']['docInfo']['fileType'] and data['viewBiz']['docInfo']['fileType'] != 'pdf':
                 title = title + "_" + data['viewBiz']['docInfo']['fileType']
+                if data['viewBiz']['docInfo']['fileType'] == 'word':
+                    isWord = True
+                else:
+                    isWord = False
 
             if args.output:
                 output = args.output
@@ -183,8 +189,6 @@ def fatch_urls(urls):
         except:
             print('Error! It is not a Baidu Wenku document.')
             continue
-
-
 
         print('Success. ')
         print('title: ', title)
@@ -388,11 +392,20 @@ def fatch_urls(urls):
                     print("字体不全，跳过")
                     break
             if os.path.exists(output + '.pdf'):
-                output = output+"_" + str(int(time.time()*1000))
+                output = output + "_" + str(int(time.time() * 1000))
             file_merger.write(output + '.pdf')
 
             print('Success.')
             print('Saved to ' + output + '.pdf')
+
+            # convert pdf to word
+            # if isWord:
+            #     try:
+            #         my_tools.convert_pdf_to_docx_with_style(output + ".pdf", output + ".docx")
+            #         if os.path.exists(output+'.pdf'):
+            #             os.remove(output+'.pdf')
+            #     except:
+            #         print("pdf转word失败")
 
             if not args.temp:
                 shutil.rmtree(temp_dir)
