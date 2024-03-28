@@ -94,7 +94,40 @@ parser.add_argument(
     help='导出的目录存放路径'
 )
 
+parser.add_argument(
+    '-conv_file_path', '--conv_file_path',
+    help='待转换的文件目录'
+)
+
+parser.add_argument(
+    '-conv_save_path', '--conv_save_path',
+    help='转换后保存的文件目录'
+)
+
+parser.add_argument(
+    '-conv_file_type', '--conv_file_type',
+    help='待转换的文件类型'
+)
+
+
 args = parser.parse_args()
+
+#处理word 转换
+if args.conv_file_type == "word":
+    args.conv_file_path = args.conv_file_path.rstrip("/")+"/"
+    args.conv_save_path = args.conv_save_path.rstrip("/")+"/"
+    if os.path.exists(args.conv_file_path) and os.path.exists(args.conv_save_path):
+        for root, directories, files in os.walk(args.conv_file_path):
+            for file in files:
+                if 'word.pdf' in file:
+                    docFileName = args.conv_save_path+file.rstrip(".pdf")+'.docx'
+                    my_tools.convert_pdf_to_docx_with_style(args.conv_file_path+file, docFileName)
+                    print(docFileName, "转换完成")
+    else:
+        print("目录不存在")
+
+    exit(0)
+
 
 pathDir = "./"
 if args.dir:
