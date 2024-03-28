@@ -440,7 +440,7 @@ def fatch_urls(urls):
             #     except:
             #         print("pdf转word失败")
 
-            if not args.temp:
+            if not args.temp and os.path.exists(temp_dir):
                 shutil.rmtree(temp_dir)
 
         # TXT
