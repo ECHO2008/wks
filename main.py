@@ -109,25 +109,23 @@ parser.add_argument(
     help='待转换的文件类型'
 )
 
-
 args = parser.parse_args()
 
-#处理word 转换
+# 处理word 转换
 if args.conv_file_type == "word":
-    args.conv_file_path = args.conv_file_path.rstrip("/")+"/"
-    args.conv_save_path = args.conv_save_path.rstrip("/")+"/"
+    args.conv_file_path = args.conv_file_path.rstrip("/") + "/"
+    args.conv_save_path = args.conv_save_path.rstrip("/") + "/"
     if os.path.exists(args.conv_file_path) and os.path.exists(args.conv_save_path):
         for root, directories, files in os.walk(args.conv_file_path):
             for file in files:
                 if 'word.pdf' in file:
-                    docFileName = args.conv_save_path+file.rstrip(".pdf")+'.docx'
-                    my_tools.convert_pdf_to_docx_with_style(args.conv_file_path+file, docFileName)
+                    docFileName = args.conv_save_path + file.rstrip(".pdf") + '.docx'
+                    my_tools.convert_pdf_to_docx_with_style(args.conv_file_path + file, docFileName)
                     print(docFileName, "转换完成")
     else:
         print("目录不存在")
 
     exit(0)
-
 
 pathDir = "./"
 if args.dir:
@@ -534,9 +532,13 @@ if args.listUrl:
 
         for tmpUrl in itemList['result']['items']:
             print("标题：", tmpUrl['data']['title'])
-            if tmpUrl['data']['fileType'] in [3, 6]:
-                print("文件类型不能是 ppt")
-                # 1:doc ,2:xls ,3:PPT ,4: doc , 5:xls  6: ppt, 7: PDF, 8: txt
+            try:
+                if tmpUrl['data']['fileType'] in [3, 6]:
+                    print("文件类型不能是 ppt")
+                    # 1:doc ,2:xls ,3:PPT ,4: doc , 5:xls  6: ppt, 7: PDF, 8: txt
+                    continue
+            except:
+                print("fileType 不存在")
                 continue
 
             notExistKeyword = True
