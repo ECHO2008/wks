@@ -360,7 +360,10 @@ def fatch_urls(urls):
                     break
                 # status not 200?
                 with open(os.path.join(temp_dir, str(pagenums[i]) + '.json'), 'w') as f:
-                    temp = re.search(r'wenku_[0-9]+\((.*)\)', req.text).group(1)
+                    try:
+                        temp = re.search(r'wenku_[0-9]+\((.*)\)', req.text).group(1)
+                    except:
+                        break
                     f.write(temp)
                 percentage = (i + 1) / len(pagenums) * 100
                 print('\r|{}| {} / {} ({:.2f}%)'.format(
