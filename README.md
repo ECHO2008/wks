@@ -112,3 +112,15 @@ python main.py --help
 #### -F FILENAME, --filename FILENAME
 
 批量下载。传入文件名，文件中一行一个链接。
+python3.9 main.py 
+    #地址
+    -l https://wenku.baidu.com/gsula/sula/syncmrecall 
+    -c 'Cookie' 
+    #爬取关键词
+    -k "keyword" 
+    #保存到文件目录
+    -D ./  
+    #爬1到2页
+    -P 1-2 
+    #过滤ppt文档
+    -filter_file_type ppt    

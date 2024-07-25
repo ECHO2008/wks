@@ -8,6 +8,7 @@ import time
 import gzip
 import base64
 
+from urllib.parse import urlencode
 import img2pdf
 from PyPDF2 import PdfMerger, PdfReader
 
@@ -109,6 +110,17 @@ parser.add_argument(
     help='待转换的文件类型'
 )
 
+parser.add_argument(
+    '-filter_file_type', '--filter_file_type',
+    help='需要过滤的文件类型'
+)
+
+parser.add_argument(
+    '-cid', '--cid',
+    help='分类ID 0:学前教育, 1:基础教育, 2:高校与高等教育, 3:语言/资格考试, 4:法律, 5:建筑, 6:互联网, 7:行业资料,'
+         ' 8:政务民生, 9:说明书, 10:实用模板, 11:生活娱乐'
+)
+
 args = parser.parse_args()
 
 # 处理word 转换
@@ -150,10 +162,21 @@ headers = {
 
 isWord = False
 
+fileTypeList = {
+    1: 'doc',
+    2: 'xls',
+    3: 'PPT',
+    4: 'doc',
+    5: 'xls',
+    6: 'ppt',
+    7: 'PDF',
+    8: 'txt',
+}
+
 
 def fatch_urls(urls):
     for url in urls:
-        sleepTime = random.randint(1, 9)
+        sleepTime = random.randint(1, 6)
         print("开始等待:", sleepTime, " 秒")
         time.sleep(sleepTime)
         print("开始下载文档。。。")
@@ -173,7 +196,8 @@ def fatch_urls(urls):
 
         html = req.text
         print("url: ", url)
-        temp_dir = url.split('?')[0].split('/')[-1]
+        docId = temp_dir = url.split('?')[0].split('/')[-1]
+
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
 
@@ -195,7 +219,7 @@ def fatch_urls(urls):
             elif data['title'][-7:] == ' - 百度文库':
                 title = data['title'][:-7]
 
-            title = title.strip().replace(" ", "")
+            title = title.strip().replace(" ", "") + f"&&{docId}"
             # filetype = re.search(r'<div class="file-type-icon (.*)"></div>').group(1)
             filetype = data['viewBiz']['docInfo']['fileType']
 
@@ -363,6 +387,7 @@ def fatch_urls(urls):
                     try:
                         temp = re.search(r'wenku_[0-9]+\((.*)\)', req.text).group(1)
                     except:
+                        # return
                         break
                     f.write(temp)
                 percentage = (i + 1) / len(pagenums) * 100
@@ -482,6 +507,111 @@ def fatch_urls(urls):
             print('Do NOT support this document. File type:', filetype)
 
 
+def fetch_search_url(listUrl, keyword, current_timestamp_ms, page):
+    urlsList = []
+    postData = {"requests": [{"sceneID": "PCSearch",
+                              "params": {"word": keyword, "searchType": 0, "lm": "0", "od": "0", "fr": "search",
+                                         "ie": "utf-8", "_wkts_": current_timestamp_ms, "wkQuery": "计划",
+                                         "pn": page,
+                                         "fd": 0, "curLogId": "1253665579"}},
+                             {"sceneID": "PCSearchRec",
+                              "params": {"word": "总结",
+                                         "searchType": 0,
+                                         "lm": "0", "od": "0",
+                                         "fr": "search",
+                                         "ie": "utf-8",
+                                         "_wkts_": current_timestamp_ms,
+                                         "wkQuery": "计划",
+                                         "pn": page, "fd": 0}},
+                             {"sceneID": "PCSearchVipcard"}]}
+
+    res = requests.post(listUrl,
+                        json=postData,
+                        headers=headers)
+    print("res:", res)
+    resData = json.loads(res.text)
+    if resData['status']['code'] != 0:
+        print("获取搜索结果数据异常：", resData['status']['msg'])
+        exit(0)
+
+    itemList = resData['data']['items']['PCSearch']
+    if itemList['error']:
+        print("解析数据异常：", itemList['error'])
+        exit(0)
+
+    # print(itemList)
+
+    for tmpUrl in itemList['result']['items']:
+        print("标题：", tmpUrl['data']['title'])
+        try:
+            if args.filter_file_type is not None:
+                filterFileType = args.filter_file_type.split(",")
+                matching_indices = [value for i, value in enumerate(fileTypeList) if fileTypeList[value].upper() in filterFileType or fileTypeList[value].lower() in filterFileType]
+                if tmpUrl['data']['fileType'] in matching_indices:
+                    print("文件类型不能是=====", filterFileType)
+                    # 1:doc ,2:xls ,3:PPT ,4: doc , 5:xls  6: ppt, 7: PDF, 8: txt
+                    continue
+        except:
+            print("fileType 不存在")
+            continue
+
+        notExistKeyword = True
+        for bk in blackWords:
+            if bk in tmpUrl['data']['title'] or bk in tmpUrl['data']['content']:
+                print("包含关键字：", bk, tmpUrl['data']['title'])
+                notExistKeyword = False
+                break
+
+        if tmpUrl['data']['pageNum'] < 91 and notExistKeyword:
+            # print("url:", tmpUrl['data']['url'])
+            urlsList.append(tmpUrl['data']['url'].replace(".html", ""))
+
+    return urlsList
+
+
+# listUrl 请求地址
+# keyword 关键字
+# page 页码
+# cid 分ID 0:学前教育, 1:基础教育, 2:高校与高等教育, 3:语言/资格考试, 4:法律, 5:建筑, 6:互联网, 7:行业资料,
+# 8:政务民生, 9:说明书, 10:实用模板, 11:生活娱乐
+def fetch_cate_search(listUrl, keyword, pageNum, cid=0):
+    urlList = []
+    pageNum = pageNum - 1
+    if pageNum < 0:
+        pageNum = 0
+
+    params = {
+        "cid1": cid,
+        "goodsType": 2,
+        "sortType": 1,
+        "tag": keyword,
+        "rn": 24,
+        "pn": pageNum
+    }
+    query_string = urlencode(params)
+    listUrl = listUrl + f'?{query_string}'
+    print("listUrl", listUrl)
+
+    res = requests.get(listUrl)
+    if res.status_code != 200:
+        return []
+
+    resData = res.json()
+    if 'data' in resData:
+        resData = resData['data']
+    if 'docList' in resData:
+        resData = resData['docList']
+
+    for item in resData:
+        docId = item['docId']          #id
+        docTitle = item['docTitle']    #标题
+        docType = item['docType']      #文件类型
+        downCount = item['downCount']  #下载次数
+        viewCount = item['viewCount']  #浏览次数
+        urlList.append(f'https://wenku.baidu.com/view/{docId}?fr=hp_sub')
+    return urlList
+
+
 urls = []
 tmpDir = ''
 if args.listUrl:
@@ -501,59 +631,13 @@ if args.listUrl:
     for page in pages:
         print("current_page =", page)
         current_timestamp_ms = int(time.time() * 1000)
-        postData = {"requests": [{"sceneID": "PCSearch",
-                                  "params": {"word": keyword, "searchType": 0, "lm": "0", "od": "0", "fr": "search",
-                                             "ie": "utf-8", "_wkts_": current_timestamp_ms, "wkQuery": "计划",
-                                             "pn": page,
-                                             "fd": 0, "curLogId": "1253665579"}},
-                                 {"sceneID": "PCSearchRec",
-                                  "params": {"word": "总结",
-                                             "searchType": 0,
-                                             "lm": "0", "od": "0",
-                                             "fr": "search",
-                                             "ie": "utf-8",
-                                             "_wkts_": current_timestamp_ms,
-                                             "wkQuery": "计划",
-                                             "pn": page, "fd": 0}},
-                                 {"sceneID": "PCSearchVipcard"}]}
-
-        res = requests.post(listUrl,
-                            json=postData,
-                            headers=headers)
-        print("res:", res)
-        resData = json.loads(res.text)
-        if resData['status']['code'] != 0:
-            print("获取搜索结果数据异常：", resData['status']['msg'])
-            exit(0)
-
-        itemList = resData['data']['items']['PCSearch']
-        if itemList['error']:
-            print("解析数据异常：", itemList['error'])
-            exit(0)
-
-        # print(itemList)
-
-        for tmpUrl in itemList['result']['items']:
-            print("标题：", tmpUrl['data']['title'])
-            try:
-                if tmpUrl['data']['fileType'] in [3, 6]:
-                    print("文件类型不能是 ppt")
-                    # 1:doc ,2:xls ,3:PPT ,4: doc , 5:xls  6: ppt, 7: PDF, 8: txt
-                    continue
-            except:
-                print("fileType 不存在")
-                continue
-
-            notExistKeyword = True
-            for bk in blackWords:
-                if bk in tmpUrl['data']['title'] or bk in tmpUrl['data']['content']:
-                    print("包含关键字：", bk, tmpUrl['data']['title'])
-                    notExistKeyword = False
-                    break
-
-            if tmpUrl['data']['pageNum'] < 91 and notExistKeyword:
-                # print("url:", tmpUrl['data']['url'])
-                urls.append(tmpUrl['data']['url'].replace(".html", ""))
+        # 判断是 //wenku.baidu.com/ghome/secpage/secfilterres 还是//wenku.baidu.com/gsula/sula/syncmrecall
+        if "syncmrecall" in args.listUrl:
+            # 文档搜索
+            urls = fetch_search_url(args.listUrl, keyword, current_timestamp_ms, page)
+        else:
+            # 分类中搜索
+            urls = fetch_cate_search(args.listUrl, keyword, page, args.cid)
 
         print("urls:", urls)
         if len(urls) > 0:
