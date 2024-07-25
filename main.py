@@ -236,7 +236,7 @@ def fatch_urls(urls):
                     isWord = True
                 else:
                     isWord = False
-
+            print("===title===", title)
             if args.output:
                 output = args.output
             else:
@@ -450,8 +450,8 @@ def fatch_urls(urls):
                 except:
                     print("字体不全，跳过")
                     break
-            if os.path.exists(output + '.pdf'):
-                output = output + "_" + str(int(time.time() * 1000))
+            # if os.path.exists(output + '.pdf'):
+            #     output = output + "_" + str(int(time.time() * 1000))
             file_merger.write(output + '.pdf')
 
             print('Success.')
