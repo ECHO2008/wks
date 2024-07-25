@@ -546,7 +546,9 @@ def fetch_search_url(listUrl, keyword, current_timestamp_ms, page):
         try:
             if args.filter_file_type is not None:
                 filterFileType = args.filter_file_type.split(",")
-                matching_indices = [value for i, value in enumerate(fileTypeList) if fileTypeList[value].upper() in filterFileType or fileTypeList[value].lower() in filterFileType]
+                matching_indices = [value for i, value in enumerate(fileTypeList) if
+                                    fileTypeList[value].upper() in filterFileType or fileTypeList[
+                                        value].lower() in filterFileType]
                 if tmpUrl['data']['fileType'] in matching_indices:
                     print("文件类型不能是=====", filterFileType)
                     # 1:doc ,2:xls ,3:PPT ,4: doc , 5:xls  6: ppt, 7: PDF, 8: txt
@@ -579,36 +581,54 @@ def fetch_cate_search(listUrl, keyword, pageNum, cid=0):
     pageNum = pageNum - 1
     if pageNum < 0:
         pageNum = 0
+    goodsType = [2,3]
+    sortType = [2, 3, 4]
+    docIds = []
 
-    params = {
-        "cid1": cid,
-        "goodsType": 2,
-        "sortType": 1,
-        "tag": keyword,
-        "rn": 24,
-        "pn": pageNum
-    }
-    query_string = urlencode(params)
-    listUrl = listUrl + f'?{query_string}'
-    print("listUrl", listUrl)
+    for gt in goodsType:
+        for st in sortType:
+            params = {
+                "cid1": cid,
+                "goodsType": gt,  # 2:vip, 3:付费
+                "sortType": st,   #1:综合排序,2:销量优先, 3:新品优先, 4:人气优先
+                "tag": keyword,
+                "rn": 24,
+                "pn": pageNum
+            }
+            query_string = urlencode(params)
+            queryUrl = listUrl + f'?{query_string}'
+            print("listUrl", queryUrl)
 
-    res = requests.get(listUrl)
-    if res.status_code != 200:
-        return []
+            res = requests.get(queryUrl)
+            if res.status_code != 200:
+                print("获取列表数据一次, http_code:", res.status_code)
+                return []
 
-    resData = res.json()
-    if 'data' in resData:
-        resData = resData['data']
-    if 'docList' in resData:
-        resData = resData['docList']
+            resData = res.json()
+            if 'data' not in resData:
+                continue
 
-    for item in resData:
-        docId = item['docId']          #id
-        docTitle = item['docTitle']    #标题
-        docType = item['docType']      #文件类型
-        downCount = item['downCount']  #下载次数
-        viewCount = item['viewCount']  #浏览次数
-        urlList.append(f'https://wenku.baidu.com/view/{docId}?fr=hp_sub')
+            resData = resData['data']
+
+            if 'docList' not in resData:
+                continue
+
+            resData = resData['docList']
+
+            for item in resData:
+                docId = item['docId']  # id
+                if docId in docIds:
+                        continue
+                docIds.append(docId)
+
+                docTitle = item['docTitle']  # 标题
+                docType = item['docType']  # 文件类型
+                downCount = item['downCount']  # 下载次数
+                viewCount = item['viewCount']  # 浏览次数
+                urlList.append(f'https://wenku.baidu.com/view/{docId}?fr=hp_sub')
+
+            time.sleep(1)
+    docIds = []
     return urlList
 
 
@@ -637,9 +657,12 @@ if args.listUrl:
             urls = fetch_search_url(args.listUrl, keyword, current_timestamp_ms, page)
         else:
             # 分类中搜索
+            if args.cid is None:
+                args.cid = 0
             urls = fetch_cate_search(args.listUrl, keyword, page, args.cid)
 
         print("urls:", urls)
+        exit(0)
         if len(urls) > 0:
             fatch_urls(urls)
 
