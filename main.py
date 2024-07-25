@@ -662,7 +662,7 @@ if args.listUrl:
             urls = fetch_cate_search(args.listUrl, keyword, page, args.cid)
 
         print("urls:", urls)
-        exit(0)
+
         if len(urls) > 0:
             fatch_urls(urls)
 
