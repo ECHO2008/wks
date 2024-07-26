@@ -282,8 +282,13 @@ def fatch_urls(urls):
             # imgs = [os.path.join(temp_dir, img) for img in os.listdir(temp_dir) if img[-4:] == '.jpg']
             file_imgs = [os.path.join(temp_dir, str(i) + '.jpg') for i in pagenums]
 
-            with open(output + '.pdf', 'wb') as f:
-                f.write(img2pdf.convert(file_imgs))
+            try:
+                with open(output + '.pdf', 'wb') as f:
+                    f.write(img2pdf.convert(file_imgs))
+            except:
+                print("写文件异常")
+                continue
+
             if not args.temp:
                 shutil.rmtree(temp_dir)
 
