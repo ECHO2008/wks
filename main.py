@@ -455,8 +455,9 @@ def fatch_urls(urls):
                 except:
                     print("字体不全，跳过")
                     break
-            # if os.path.exists(output + '.pdf'):
-            #     output = output + "_" + str(int(time.time() * 1000))
+            if os.path.exists(output + '.pdf'):
+                continue
+                # output = output + "_" + str(int(time.time() * 1000))
             file_merger.write(output + '.pdf')
 
             print('Success.')
@@ -625,14 +626,17 @@ def fetch_cate_search(listUrl, keyword, pageNum, cid=0):
                 if docId in docIds:
                         continue
                 docIds.append(docId)
-
+                filterFileType = args.filter_file_type.split(",")
                 docTitle = item['docTitle']  # 标题
                 docType = item['docType']  # 文件类型
                 downCount = item['downCount']  # 下载次数
                 viewCount = item['viewCount']  # 浏览次数
+                if docType !='' and docType in filterFileType:
+                    print(f"过滤{docTitle},文件类型：{docType}")
+                    continue
                 urlList.append(f'https://wenku.baidu.com/view/{docId}?fr=hp_sub')
 
-            time.sleep(1)
+            time.sleep(0.3)
     docIds = []
     return urlList
 
