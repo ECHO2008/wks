@@ -624,9 +624,12 @@ def fetch_cate_search(listUrl, keyword, pageNum, cid=0):
             for item in resData:
                 docId = item['docId']  # id
                 if docId in docIds:
-                        continue
+                    continue
                 docIds.append(docId)
-                filterFileType = args.filter_file_type.split(",")
+
+                filterFileType=[]
+                if args.filter_file_type != '':
+                    filterFileType = args.filter_file_type.split(",")
                 docTitle = item['docTitle']  # 标题
                 docType = item['docType']  # 文件类型
                 downCount = item['downCount']  # 下载次数
