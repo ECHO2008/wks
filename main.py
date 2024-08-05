@@ -82,7 +82,7 @@ parser.add_argument(
 
 parser.add_argument(
     '-k', '--keyword',
-    help='搜索的关键词'
+    help='搜索的关键词, 多个词用 || 隔开'
 )
 
 parser.add_argument(
@@ -113,6 +113,11 @@ parser.add_argument(
 parser.add_argument(
     '-filter_file_type', '--filter_file_type',
     help='需要过滤的文件类型'
+)
+
+parser.add_argument(
+    '-is_split_dir', '--is_split_dir',
+    help='是否拆分目录'
 )
 
 parser.add_argument(
@@ -188,7 +193,7 @@ def fatch_urls(urls):
 
         try:
             req = requests.get(url, headers=headers)
-        except:
+        except Exception:
             print("网络请求异常，休息10s")
             urls.append(url)
             time.sleep(10)
@@ -247,6 +252,9 @@ def fatch_urls(urls):
 
         print('Success. ')
         print('title: ', title)
+        if os.path.exists(output + '.pdf'):
+            print("文件重复")
+            continue
 
         # PPT
         if data['readerInfo']['tplKey'] == 'new_view' and filetype == 'ppt':
@@ -456,6 +464,7 @@ def fatch_urls(urls):
                     print("字体不全，跳过")
                     break
             if os.path.exists(output + '.pdf'):
+                print("文件重复")
                 continue
                 # output = output + "_" + str(int(time.time() * 1000))
             file_merger.write(output + '.pdf')
@@ -587,7 +596,7 @@ def fetch_cate_search(listUrl, keyword, pageNum, cid=0):
     pageNum = pageNum - 1
     if pageNum < 0:
         pageNum = 0
-    goodsType = [2,3]
+    goodsType = [2, 3]
     sortType = [2, 3, 4]
     docIds = []
 
@@ -596,7 +605,7 @@ def fetch_cate_search(listUrl, keyword, pageNum, cid=0):
             params = {
                 "cid1": cid,
                 "goodsType": gt,  # 2:vip, 3:付费
-                "sortType": st,   #1:综合排序,2:销量优先, 3:新品优先, 4:人气优先
+                "sortType": st,  # 1:综合排序,2:销量优先, 3:新品优先, 4:人气优先
                 "tag": keyword,
                 "rn": 24,
                 "pn": pageNum
@@ -627,14 +636,15 @@ def fetch_cate_search(listUrl, keyword, pageNum, cid=0):
                     continue
                 docIds.append(docId)
 
-                filterFileType=[]
+                filterFileType = []
                 if args.filter_file_type != '':
                     filterFileType = args.filter_file_type.split(",")
+
                 docTitle = item['docTitle']  # 标题
                 docType = item['docType']  # 文件类型
                 downCount = item['downCount']  # 下载次数
                 viewCount = item['viewCount']  # 浏览次数
-                if docType !='' and docType in filterFileType:
+                if docType != '' and docType in filterFileType:
                     print(f"过滤{docTitle},文件类型：{docType}")
                     continue
                 urlList.append(f'https://wenku.baidu.com/view/{docId}?fr=hp_sub')
@@ -648,41 +658,50 @@ urls = []
 tmpDir = ''
 if args.listUrl:
     listUrl = args.listUrl
-    keyword = args.keyword
-    tmpDir = pathDir + "{}/".format(keyword)
-    if not os.path.exists(tmpDir):
-        os.mkdir(tmpDir)
-    pageList = args.page.split("-")
-    if len(pageList) == 1:
-        pages = [int(args.page[0])]
-    else:
-        pages = list(range(int(pageList[0]), int(pageList[1]) + 1))
-
-    print("pages:", pages)
-
-    for page in pages:
-        print("current_page =", page)
-        current_timestamp_ms = int(time.time() * 1000)
-        # 判断是 //wenku.baidu.com/ghome/secpage/secfilterres 还是//wenku.baidu.com/gsula/sula/syncmrecall
-        if "syncmrecall" in args.listUrl:
-            # 文档搜索
-            urls = fetch_search_url(args.listUrl, keyword, current_timestamp_ms, page)
+    keywordList = args.keyword.strip(" ").strip("||").strip(" ").split("||")
+    for keyword in keywordList:
+        print(f"current fetch {keyword}")
+        if args.is_split_dir is not None and int(args.is_split_dir) == 1:
+            tmpDir = pathDir + "{}/".format(keyword)
         else:
-            # 分类中搜索
-            if args.cid is None:
-                args.cid = 0
-            urls = fetch_cate_search(args.listUrl, keyword, page, args.cid)
+            tmpDir = pathDir
 
-        print("urls:", urls)
+        print("tmpDir", tmpDir)
 
-        if len(urls) > 0:
-            fatch_urls(urls)
+        if not os.path.exists(tmpDir):
+            os.mkdir(tmpDir)
 
-        urls.clear()
-        if current_timestamp_ms - int(time.time() * 1000) < 60000:
-            time.sleep(random.randint(8, 16))
+        pageList = args.page.split("-")
+        if len(pageList) == 1:
+            pages = [int(args.page[0])]
+        else:
+            pages = list(range(int(pageList[0]), int(pageList[1]) + 1))
 
-    # urls = ["https://wenku.baidu.com/view/4c4eb0e1a7c30c22590102020740be1e640ecc62?fr=income7-doc-search"]
+        print("pages:", pages)
+
+        for page in pages:
+            print("current_page =", page)
+            current_timestamp_ms = int(time.time() * 1000)
+            # 判断是 //wenku.baidu.com/ghome/secpage/secfilterres 还是//wenku.baidu.com/gsula/sula/syncmrecall
+            if "syncmrecall" in args.listUrl:
+                # 文档搜索
+                urls = fetch_search_url(args.listUrl, keyword, current_timestamp_ms, page)
+            else:
+                # 分类中搜索
+                if args.cid is None:
+                    args.cid = 0
+                urls = fetch_cate_search(args.listUrl, keyword, page, args.cid)
+
+            print("urls:", urls)
+
+            if len(urls) > 0:
+                fatch_urls(urls)
+
+            urls.clear()
+            if current_timestamp_ms - int(time.time() * 1000) < 60000:
+                time.sleep(random.randint(8, 16))
+
+        # urls = ["https://wenku.baidu.com/view/4c4eb0e1a7c30c22590102020740be1e640ecc62?fr=income7-doc-search"]
 
     exit(0)
 
