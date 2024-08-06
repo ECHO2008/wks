@@ -178,6 +178,10 @@ fileTypeList = {
     8: 'txt',
 }
 
+def remove_html_tags(text):
+    clean = re.compile('<.*?>')
+    return re.sub(clean, '', text)
+
 
 def fatch_urls(urls):
     for url in urls:
@@ -250,6 +254,7 @@ def fatch_urls(urls):
             print('Error! It is not a Baidu Wenku document.')
             continue
 
+        title = remove_html_tags(title)
         print('Success. ')
         print('title: ', title)
         if os.path.exists(output + '.pdf'):
